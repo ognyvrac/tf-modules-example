@@ -2,9 +2,20 @@ variable "replicas_count" {
   description = "How many replicas to deploy"
 }
 
+variable "ns_frontend" {
+  description = "Namespace name of the dpeloyment"
+}
+
+resource "kubernetes_namespace" "ns_frontend" {
+  metadata {
+    name = var.ns_frontend
+  }
+}
+
 resource "kubernetes_deployment" "frontend" {
   metadata {
     name = "frontend"
+    namespace = kubernetes_namespace.ns_frontend.metadata.0.name
   }
 
   spec {
@@ -37,6 +48,7 @@ resource "kubernetes_deployment" "frontend" {
 resource "kubernetes_service" "frontend" {
   metadata {
     name = "frontend"
+    namespace = kubernetes_namespace.ns_frontend.metadata.0.name
   }
   spec {
     selector = {
@@ -52,6 +64,7 @@ resource "kubernetes_service" "frontend" {
 resource "kubernetes_ingress_v1" "frontend" {
   metadata {
     name = "frontend"
+    namespace = kubernetes_namespace.ns_frontend.metadata.0.name
   }
   spec {
     rule {

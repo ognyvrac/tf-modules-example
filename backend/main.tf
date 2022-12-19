@@ -2,9 +2,20 @@ variable "replicas_count" {
   description = "How many replicas to run"
 }
 
+variable "ns_backend" {
+  description = "Namespace name of the dpeloyment"
+}
+
+resource "kubernetes_namespace" "ns_backend" {
+  metadata {
+    name = var.ns_backend
+  }
+}
+
 resource "kubernetes_deployment" "backend" {
   metadata {
     name = "backend"
+    namespace = kubernetes_namespace.ns_backend.metadata.0.name
   }
 
   spec {
@@ -37,6 +48,7 @@ resource "kubernetes_deployment" "backend" {
 resource "kubernetes_service" "backend" {
   metadata {
     name = "backend"
+    namespace = kubernetes_namespace.ns_backend.metadata.0.name
   }
   spec {
     selector = {
